@@ -134,17 +134,27 @@ public:
      */
 
     Image& operator=(const Image& image) {
-        if (this == &image){
+        if (this == &image) {
             return *this;
         }
 
-        stbi_image_free(this->imageData);
+        if (this->imageData != nullptr) {
+            stbi_image_free(this->imageData);
+        }
         this->imageData = nullptr;
 
         this->width = image.width;
         this->height = image.height;
         this->channels = image.channels;
+
+        if (image.imageData == nullptr) {
+            return *this;
+        }
+
         imageData = static_cast<unsigned char*>(malloc(width * height * channels));
+        if (imageData == nullptr) {
+            throw std::bad_alloc();
+        }
 
         for (int i = 0; i < image.width * image.height * this->channels; i++) {
             this->imageData[i] = image.imageData[i];
